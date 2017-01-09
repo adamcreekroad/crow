@@ -2,13 +2,14 @@ module Crow
   module Conditionals
     private def transpile(node : Crystal::If)
       cond = transpile node.cond
+
       case node
       when Crystal::Unless
         cond = "!#{cond}"
       end
 
       code = <<-JS
-      if (#{cond}) {#{format_body(node.then)}}
+      if #{cond} {#{format_body(node.then)}}
       JS
       case node.else
       when Crystal::Nop
@@ -25,7 +26,7 @@ module Crow
       cond = "!#{cond}"
 
       code = <<-JS
-      if (#{cond}) {#{format_body(node.then)}}
+      if #{cond} {#{format_body(node.then)}}
       JS
       case node.else
       when Crystal::Nop
@@ -53,6 +54,14 @@ module Crow
     rescue CaseWithTypeDetected
       transformed = transform_case_to_if(node)
       transpile(transformed)
+    end
+
+    private def transpile(node : Crystal::While)
+      cond = transpile(node.cond)
+
+      code = <<-JS
+      while (#{cond}) {#{format_body(node.body)}}
+      JS
     end
 
     private def transpile_to_case(node : Crystal::When)

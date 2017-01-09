@@ -41,5 +41,11 @@ module Crow
       _def.name = ""
       transpile _def
     end
+
+    private def camelize(node : String)
+      string = node.sub(/^(?:(?=\b|[A-Z_])|\w)/) { |s| s.downcase }
+      string.gsub(/(?:_|(\/))([a-z\d]*)/) { |s, m| "#{m[1]?}#{m[2].capitalize}" }
+            .gsub('/', "::")
+    end
   end
 end

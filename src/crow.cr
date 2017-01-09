@@ -11,6 +11,7 @@ module Crow
   include Crow::Types
   include Crow::Symbol
   include Crow::Literals
+  include Crow::BinaryOps
   include Crow::Conditionals
   include Crow::Expressions
   include Crow::TemplateString

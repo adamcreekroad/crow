@@ -9,13 +9,18 @@ module Crow
       end
 
       args = method.args.map do |arg|
-        val = "#{arg.name}"
-        case arg.restriction
-        when Crystal::Path
-          val += " : #{arg.restriction.to_s}"
-        end
+        val = camelize("#{arg.name}")
+
+        # TODO: Implement type checking
+        # case arg.restriction
+        # when Crystal::Path
+        #   val += " : #{arg.restriction.to_s}"
+        # end
         val
       end
+
+      # p transpile(method.body)
+      # p method.body.class
 
       method_body = if original_name == "initialize"
                       format_body(transpile(method.body))
@@ -28,8 +33,13 @@ module Crow
       end
 
       <<-JS
-      #{name}(#{args.join(", ")}) {#{method_body}}
+      #{camelize(name)}(#{args.join(", ")}) {#{method_body}}
       JS
+    end
+
+    private def transpile(node : Crystal::Block)
+      body = format_body(transpile(node.body))
+      "(#{transpile(node.args).join(", ")}) => {#{body}}"
     end
 
     private def transpile(call : Crystal::Call)
@@ -40,16 +50,21 @@ module Crow
       end
 
       case call.name
-      when "+"
-        "#{call.obj} + #{call.args[0]}"
-      when "-"
-        "#{call.obj} - #{call.args[0]}"
-      when "*"
-        "#{call.obj} * #{call.args[0]}"
-      when "/"
-        "#{call.obj} / #{call.args[0]}"
+      when "+", "-", "*", "/", ">", ">=", "<", "<=", "==", "!="
+        "#{transpile call.obj} #{call.name} #{transpile call.args[0]}"
       else
         args = transpile call.args
+        block = transpile call.block
+        if block.is_a?(String)
+          args = args.concat([block])
+        end
+        p "args class: #{args.class}"
+        p "block class #{block.class}"
+
+        # if call.block
+        #
+        #   args << block
+        # end
 
         method = "console.log" if method == "p"
         method = "throw new Error" if method == "raise"
@@ -62,16 +77,21 @@ module Crow
           end
         end
 
-        "#{method}(#{args.join(", ")});"
+        if @@class_stack > 0
+          klass = "#{transpile Crystal::Self.new}."
+        end
+
+        "#{klass}#{camelize(method)}(#{args.join(", ")});"
       end
     end
 
     private def transpile_with_return(node : Crystal::ASTNode)
-      "return #{transpile(node)}"
+      node = transpile(node)
+      "#{transpile(node)}\nreturn;"
     end
 
     private def transpile_with_return(node : Crystal::NumberLiteral)
-      "return #{transpile(node)};"
+      "#{transpile(node)}\nreturn;"
     end
 
     private def transpile_with_return(node : Crystal::Nop)
