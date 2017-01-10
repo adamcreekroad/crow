@@ -57,5 +57,9 @@ module Crow
 
       "{#{entries}}"
     end
+
+    private def transpile(node : Crystal::ProcLiteral)
+      transpile(node.def)
+    end
   end
 end

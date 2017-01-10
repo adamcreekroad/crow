@@ -1,43 +1,34 @@
-class Hello {
-  constructor(people) {
+class Greeter {
+  constructor(people, name) {
     this.people = people;
+    this.name = name;
     this.count = 0;
+    this.foo = {"bar": "bar"};
   }
   greet() {
     if (this.count >= 0 && this.people) {
       this.count += 1;
       this.console.log("Hello World!");
-      if block {
-        yield @count
-      }
     }
-    return;
   }
-  greetManyPeople(peopleOverride) {
-    const maxPeople = (peopleOverride || this.people);
-    maxPeople -= 1;
+  greetManyPeople(peopleOverride, callback) {
+    let maxPeople = (peopleOverride || this.people);
+    maxPeople = 1;
     while (this.count < maxPeople) {
       this.greet();
     }
-    return;
+    callback(this.count, this.name);
   }
 }
-function greet() {
-  console.log("foo");
-  return;
-}
-const world = new Hello(10);;
-greet(() => {
-  console.log("We did it reddit!");
-});
-class App extends React::Component::Base {
-  this.param(foo : String);
-  this.param(bar : Int);
-  this.render(() => {
-    this.div(() => {
-      this.h1(() => {
-        "Hello World!"
-      });
-    });
+function doSomeGreetings {
+  this.people = people;
+  this.name = name;
+  const greeter = new Greeter(this.people, this.name);;
+  greeter.greetManyPeople((count, name) => {
+    console.log(`We',ve greeted ${count} people, ${name}!`);
   });
 }
+const foo = (x, y) => {
+  console.log(x + y);
+};
+foo(3, 4);

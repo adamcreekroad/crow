@@ -19,8 +19,11 @@ module Crow
         val
       end
 
-      # p transpile(method.body)
-      # p method.body.class
+      block = transpile method.block_arg
+      args = args.concat(["callback"]) if block.is_a?(String)
+
+      # p transpile_with_return(method.body)
+      # p method.body
 
       method_body = if original_name == "initialize"
                       format_body(transpile(method.body))
@@ -28,18 +31,27 @@ module Crow
                       format_body(transpile_with_return(method.body))
                     end
 
-      if @@class_stack == 0
-        name = "function #{name}"
+      if original_name == "->"
+        name = "(#{args.join(", ")}) =>"
+      elsif @@class_stack == 0
+        name = "function #{camelize(name)}"
+      else
+        name = "#{camelize(name)}(#{args.join(", ")})"
       end
 
       <<-JS
-      #{camelize(name)}(#{args.join(", ")}) {#{method_body}}
+      #{name} {#{method_body}}
       JS
     end
 
     private def transpile(node : Crystal::Block)
       body = format_body(transpile(node.body))
       "(#{transpile(node.args).join(", ")}) => {#{body}}"
+    end
+
+    private def transpile(node : Crystal::Yield)
+      exps = transpile node.exps
+      "callback(#{exps.join(", ")});"
     end
 
     private def transpile(call : Crystal::Call)
@@ -55,16 +67,7 @@ module Crow
       else
         args = transpile call.args
         block = transpile call.block
-        if block.is_a?(String)
-          args = args.concat([block])
-        end
-        p "args class: #{args.class}"
-        p "block class #{block.class}"
-
-        # if call.block
-        #
-        #   args << block
-        # end
+        args = args.concat([block]) if block.is_a?(String)
 
         method = "console.log" if method == "p"
         method = "throw new Error" if method == "raise"
@@ -72,6 +75,8 @@ module Crow
         if call.obj
           if method == "new"
             method = "#{method} #{call.obj}"
+          elsif method == "call"
+            method = "#{call.obj}"
           else
             method = "#{call.obj}.#{method}"
           end
@@ -87,15 +92,19 @@ module Crow
 
     private def transpile_with_return(node : Crystal::ASTNode)
       node = transpile(node)
-      "#{transpile(node)}\nreturn;"
+      transpile(node)
     end
 
     private def transpile_with_return(node : Crystal::NumberLiteral)
-      "#{transpile(node)}\nreturn;"
+      transpile(node)
     end
 
     private def transpile_with_return(node : Crystal::Nop)
       ""
+    end
+
+    private def transpile_proc(node : Crystal::ASTNode)
+      node.to_s
     end
   end
 end

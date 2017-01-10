@@ -1,9 +1,10 @@
 class App < React::Component::Base
-  def div(props = {}, &block)
-    React.createElement("div", props, block)
-  end
+  param :foo, type: String
+  param :bar, type: Integer
 
-  def render
-    div(className: "bar") { "Hello World" }
+  render do
+    div do
+      h1 { "Hello World!" }
+    end
   end
 end
