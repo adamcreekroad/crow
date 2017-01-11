@@ -18,6 +18,7 @@ module Crow
   include Crow::Functions
   include Crow::Exceptions
   include Crow::Classes
+  include Crow::Modules
   include Crow::Macros
   include Crow::Formatting
   extend self
@@ -25,11 +26,14 @@ module Crow
   @@logger = Logger.new(STDERR)
   @@logger.level = Logger::ERROR
   @@strict = false
+  @@classes = [] of String
+  @@modules = [] of String
 
   def convert(crystal_source_code)
     parser = Crystal::Parser.new(crystal_source_code)
     node = Crystal::Expressions.from(parser.parse)
-    transpile(node).strip
+
+    transpile(node)
   end
 
   def logger

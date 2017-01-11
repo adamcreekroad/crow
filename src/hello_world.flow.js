@@ -1,4 +1,5 @@
-class Greeter {
+const Helpers = {}
+Helpers.Greeter = class {
   constructor(people, name) {
     this.people = people;
     this.name = name;
@@ -20,10 +21,11 @@ class Greeter {
     callback(this.count, this.name);
   }
 }
+
 function doSomeGreetings {
   this.people = people;
   this.name = name;
-  const greeter = new Greeter(this.people, this.name);;
+  const greeter = new Helpers::Greeter(this.people, this.name);;
   greeter.greetManyPeople((count, name) => {
     console.log(`We',ve greeted ${count} people, ${name}!`);
   });

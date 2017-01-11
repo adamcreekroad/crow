@@ -1,34 +1,53 @@
-class Greeter
-  def initialize(@people : Int32, @name : String)
-    @count = 0
-    @foo = {bar: "bar"}
-  end
-
-  def greet
-    if @count >= 0 && @people
-      @count += 1
-      p "Hello World!"
-    end
-  end
-
-  def greet_many_people(people_override : Int32 = nil, &block)
-    max_people = people_override || @people
-    max_people = 1
-    while @count < max_people
-      greet
-    end
-    yield(@count, @name)
+class Bar
+  def foo
   end
 end
 
-def do_some_greetings(@people, @name)
-  greeter = Greeter.new(@people, @name)
+module Services
+  class Employee
+    def initialize(@name : String)
+    end
+  end
 
-  greeter.greet_many_people do |count, name|
-    p "We',ve greeted #{count} people, #{name}!"
+  module Helpers
+    module Admin
+      class Foo
+      end
+    end
+
+    class Greeter < Employee
+      def initialize(@people : Int32, @name : String)
+        @count = 0
+        @foo = {bar: "bar"}
+      end
+
+      def greet
+        if @count >= 0 && @people
+          @count += 1
+          p "Hello World!"
+        end
+      end
+
+      def greet_many_people(people_override : Int32 = nil, &block)
+        max_people = people_override || @people
+        while @count < max_people
+          greet
+        end
+        yield(@count, @name) if block
+        @count = 0
+      end
+    end
+
+    class Server < Employee
+      def serve
+      end
+    end
+  end
+
+  module Workers
+    class Cashier < Employee
+      def cash_out
+      end
+    end
   end
 end
-
-foo = ->(x : Int32, y : Int32) { p(x + y) }
-
-foo.call(3, 4)

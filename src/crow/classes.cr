@@ -11,7 +11,7 @@ module Crow
       when "::Nil"
         "void"
       else
-        node.to_s
+        node.to_s.gsub("::", '.')
       end
     end
 
@@ -25,9 +25,7 @@ module Crow
       class_body = format_body(transpile(klass.body))
       @@class_stack -= 1
 
-      <<-JS
-      class #{class_name} {#{class_body}}
-      JS
+      "class #{class_name} {#{class_body}}"
     end
   end
 end
