@@ -1,14 +1,9 @@
-const Components = {
-  class App extends React::Component::Base {
-    scrollUp() {
-      this.Document.scrollTo(0);
-    }
-    this.render(() => {
-      this.div(() => {
-        this.h1(() => {
-          "Hello World!"
-        });
-      });
-    });
+const Components = {};
+Components.App = class extends React.Component {
+  name() {
+    return 'Adam George';
   }
-};
+  render() {
+    return React.createElement('div', null, `Hello ${this.props.toWhat}`);
+  }
+}

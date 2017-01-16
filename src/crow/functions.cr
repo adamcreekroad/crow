@@ -62,8 +62,10 @@ module Crow
       end
 
       case call.name
-      when "+", "-", "*", "/", ">", ">=", "<", "<=", "==", "!="
+      when "+", "-", "*", "/", ">", ">=", "<", "<=", "==", "!=", "==="
         "#{transpile call.obj} #{call.name} #{transpile call.args[0]}"
+      when "`"
+        "#{transpile(call.args[0]).gsub('\'', "")}"
       else
         args = transpile call.args
         block = transpile call.block
@@ -74,25 +76,26 @@ module Crow
 
         if call.obj
           if method == "new"
-            method = "#{method} #{call.obj}"
+            method = "#{method} #{transpile call.obj}"
           elsif method == "call"
-            method = "#{call.obj}"
+            method = "#{transpile call.obj}"
           else
-            method = "#{call.obj}.#{method}"
+            method = "#{transpile call.obj}.#{method}"
           end
         end
 
-        if @@class_stack > 0
-          klass = "#{transpile Crystal::Self.new}."
-        end
-
-        "#{klass}#{camelize(method)}(#{args.join(", ")});"
+        "#{camelize(method)}(#{args.join(", ")});"
       end
     end
 
+    private def transpile_with_return(node : Crystal::Expressions)
+      transpiled_exps = node.expressions.map { |e| transpile(e) }
+      transpiled_exps << "return #{transpiled_exps.pop};"
+      transpiled_exps.join('\n')
+    end
+
     private def transpile_with_return(node : Crystal::ASTNode)
-      node = transpile(node)
-      transpile(node)
+      "return #{transpile(node)};"
     end
 
     private def transpile_with_return(node : Crystal::NumberLiteral)

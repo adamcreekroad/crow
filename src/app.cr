@@ -1,13 +1,11 @@
 module Components
-  class App < React::Component::Base
-    def scroll_up
-      Document.scroll_to(0)
+  class App < React::Component
+    def name
+      "Adam George"
     end
 
-    render do
-      div do
-        h1 { "Hello World!" }
-      end
+    def render
+      React.create_element("div", nil, "Hello #{@props.to_what}")
     end
   end
 end

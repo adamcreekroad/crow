@@ -13,7 +13,7 @@ module Crow
     end
 
     private def transpile(node : Crystal::StringLiteral)
-      node.to_s
+      "'#{node.value}'"
     end
 
     private def transpile(node : Crystal::ArrayLiteral)

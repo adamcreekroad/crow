@@ -1,7 +1,37 @@
-class Bar
-  def foo
-  end
-end
+%x(
+Array.prototype.reject = function(condition) {
+  let rejectedItems = [];
+
+  for (let item of this) {
+    let reject = condition(item);
+
+    if (reject) {
+      rejectedItems.push(item);
+    }
+  }
+
+  for (let item of rejectedItems) {
+    this.splice(this.indexOf(item), 1);
+  }
+
+  return this;
+}
+
+Array.prototype.each = function(block) {
+  for (let item of this) {
+    block(item);
+  }
+  return this;
+}
+
+Array.prototype.eachWithIndex = function(block) {
+  for (let item of this) {
+    index = this.indexOf(item);
+    block(item, index);
+  }
+  return this;
+}
+)
 
 module Services
   class Employee
@@ -18,7 +48,9 @@ module Services
     class Greeter < Employee
       def initialize(@people : Int32, @name : String)
         @count = 0
-        @foo = {bar: "bar"}
+        @foo = ["foo1", "foo2"]
+        @bar = ["bar1", :bar2]
+        @foo.each_with_index { |n, i| p "We are on #{n}, it is the #{i + 1} item in the array" }
       end
 
       def greet

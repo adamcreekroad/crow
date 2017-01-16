@@ -1,8 +1,8 @@
 require "./crow.cr"
 
-file = File.read("./hello_world.cr")
+file = File.read("./app.cr")
 res = Crow.convert(file)
 
-File.open("./hello_world.js", "w+") do |f|
+File.open("./app.js", "w+") do |f|
   f << res
 end

@@ -58,7 +58,6 @@ module Crow
 
     private def find_superclass(node : Crystal::ASTNode | Nil)
       foo = @@modules.map { |m| m if m.scan(/#{node.to_s}/).any? }.compact
-      p foo
       node.to_s
     end
 

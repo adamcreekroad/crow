@@ -3,7 +3,6 @@ require "./ast/*"
 module Crow
   module Expressions
     private def transpile(node : Crystal::Expressions)
-      p node.keyword
       Private.apply_let_and_const(node.expressions).map do |node|
         transpile node
       end.join("\n")

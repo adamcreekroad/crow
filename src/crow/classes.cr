@@ -17,6 +17,7 @@ module Crow
 
     private def transpile(klass : Crystal::ClassDef)
       class_name = klass.name.to_s
+      p "name: #{klass.name} sk: #{klass.superclass}"
       if klass.superclass
         class_name += " extends #{klass.superclass.to_s}"
       end

@@ -1,7 +1,7 @@
 module Crow
   module Symbol
     private def transpile(node : Crystal::SymbolLiteral)
-      "Symbol.for('#{node.value}')"
+      "'#{node.value.to_s}'"
     end
   end
 end
