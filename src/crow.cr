@@ -26,8 +26,12 @@ module Crow
   @@logger = Logger.new(STDERR)
   @@logger.level = Logger::ERROR
   @@strict = false
-  @@classes = [] of String
-  @@modules = [] of String
+
+  @@module_stack = [] of ModuleData
+  @@modules = [] of ModuleData
+
+  @@class_stack = [] of ClassData
+  @@classes = [] of ClassData
 
   def convert(crystal_source_code)
     parser = Crystal::Parser.new(crystal_source_code)

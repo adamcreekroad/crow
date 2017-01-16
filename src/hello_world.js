@@ -1,47 +1,20 @@
-
-Array.prototype.reject = function(condition) {
-  let rejectedItems = [];
-
-  for (let item of this) {
-    let reject = condition(item);
-
-    if (reject) {
-      rejectedItems.push(item);
-    }
+class Foo {
+  class Bar {}
+  hello() {
+    return puts('hello');;
   }
-
-  for (let item of rejectedItems) {
-    this.splice(this.indexOf(item), 1);
-  }
-
-  return this;
 }
-
-Array.prototype.each = function(block) {
-  for (let item of this) {
-    block(item);
-  }
-  return this;
-}
-
-Array.prototype.eachWithIndex = function(block) {
-  for (let item of this) {
-    index = this.indexOf(item);
-    block(item, index);
-  }
-  return this;
-}
-
 const Services = {};
 Services.Employee = class {
   constructor(name) {
     this.name = name;
+    console.log(`name is ${this.name}`);
   }
 }
 Services.Helpers = {};
 Services.Helpers.Admin = {};
 Services.Helpers.Admin.Foo = class {}
-Services.Helpers.Greeter = class extends Employee {
+Services.Helpers.Greeter = class extends Services.Employee {
   constructor(people, name) {
     this.people = people;
     this.name = name;
@@ -53,7 +26,7 @@ Services.Helpers.Greeter = class extends Employee {
     });
   }
   greet() {
-    return if (this.count >= 0 && this.people) {
+    return if ((this.count >= 0 && this.people)) {
       this.count += 1;
       console.log('Hello World!');
     };
@@ -63,16 +36,22 @@ Services.Helpers.Greeter = class extends Employee {
     while (this.count < maxPeople) {
       greet();
     }
-    if block {
-      callback(this.count, this.name);
-    }
+    callback(this.count, this.name);
     return this.count = 0;;
   }
 }
-Services.Helpers.Server = class extends Employee {
+Services.Helpers.Server = class extends Services.Employee {
   serve() {}
 }
 Services.Workers = {};
-Services.Helpers.Cashier = class extends Employee {
+Services.Workers.Cashier = class extends Services.Employee {
   cashOut() {}
 }
+const foo = new Services.Helpers.Greeter(8, 'AG');;
+foo.greetManyPeople(4, (count, name) => {
+  console.log(`we greeted ${count} people, ${name}!`);
+});
+const one = new Foo();;
+one.hello();
+const two = new Foo.Bar();;
+two.hello();

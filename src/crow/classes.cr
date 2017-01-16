@@ -1,7 +1,5 @@
 module Crow
   module Classes
-    @@class_stack = 0
-
     private def transpile(node : Crystal::Path)
       case node.to_s
       when "Int32"
@@ -17,14 +15,18 @@ module Crow
 
     private def transpile(klass : Crystal::ClassDef)
       class_name = klass.name.to_s
-      p "name: #{klass.name} sk: #{klass.superclass}"
       if klass.superclass
         class_name += " extends #{klass.superclass.to_s}"
       end
-
-      @@class_stack += 1
+      if @@class_stack.size > 0
+        new_class = ClassData.new(class_name, klass, @@class_stack.map(&.name).join('.'))
+      else
+        new_class = ClassData.new(class_name, klass, nil)
+      end
+      @@classes << new_class
+      @@class_stack << new_class
       class_body = format_body(transpile(klass.body))
-      @@class_stack -= 1
+      @@class_stack.pop
 
       "class #{class_name} {#{class_body}}"
     end

@@ -1,6 +1,7 @@
 module Crow
   module Conditionals
     private def transpile(node : Crystal::If)
+      # p node.cond
       cond = transpile node.cond
 
       case node
@@ -9,7 +10,7 @@ module Crow
       end
 
       code = <<-JS
-      if #{cond} {#{format_body(node.then)}}
+      if (#{cond}) {#{format_body(node.then)}}
       JS
       case node.else
       when Crystal::Nop

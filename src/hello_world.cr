@@ -1,41 +1,51 @@
-%x(
-Array.prototype.reject = function(condition) {
-  let rejectedItems = [];
+# %x(
+# Array.prototype.reject = function(condition) {
+#   let rejectedItems = [];
 
-  for (let item of this) {
-    let reject = condition(item);
+#   for (let item of this) {
+#     let reject = condition(item);
 
-    if (reject) {
-      rejectedItems.push(item);
-    }
-  }
+#     if (reject) {
+#       rejectedItems.push(item);
+#     }
+#   }
 
-  for (let item of rejectedItems) {
-    this.splice(this.indexOf(item), 1);
-  }
+#   for (let item of rejectedItems) {
+#     this.splice(this.indexOf(item), 1);
+#   }
 
-  return this;
-}
+#   return this;
+# }
 
-Array.prototype.each = function(block) {
-  for (let item of this) {
-    block(item);
-  }
-  return this;
-}
+# Array.prototype.each = function(block) {
+#   for (let item of this) {
+#     block(item);
+#   }
+#   return this;
+# }
 
-Array.prototype.eachWithIndex = function(block) {
-  for (let item of this) {
-    index = this.indexOf(item);
-    block(item, index);
-  }
-  return this;
-}
-)
+# Array.prototype.eachWithIndex = function(block) {
+#   for (let item of this) {
+#     index = this.indexOf(item);
+#     block(item, index);
+#   }
+#   return this;
+# }
+# )
+
+class Foo
+  class Bar
+  end
+
+  def hello
+    puts "hello"
+  end
+end
 
 module Services
   class Employee
     def initialize(@name : String)
+      p "name is #{@name}"
     end
   end
 
@@ -65,7 +75,7 @@ module Services
         while @count < max_people
           greet
         end
-        yield(@count, @name) if block
+        yield @count, @name
         @count = 0
       end
     end
@@ -83,3 +93,14 @@ module Services
     end
   end
 end
+
+foo = Services::Helpers::Greeter.new(8, "AG")
+foo.greet_many_people(4) do |count, name|
+  p "we greeted #{count} people, #{name}!"
+end
+
+one = Foo.new
+one.hello
+
+two = Foo::Bar.new
+two.hello

@@ -1,17 +1,19 @@
 module Crow
   module Modules
-    @@module_stack = 0
-
     private def transpile(node : Crystal::ModuleDef)
-      if @@module_stack > 0
-        module_name = "#{@@modules[@@module_stack - 1]}.#{transpile(node.name)}"
-        @@modules << module_name
+      if @@module_stack.size > 0
+        module_name = "#{@@module_stack.map(&.name).join('.')}.#{transpile(node.name)}"
+        new_module = ModuleData.new(transpile(node.name), node, @@module_stack.map(&.name).join('.'))
+        @@module_stack.last.modules << new_module
+      elsif (new_module = @@modules.find { |m| m.name == transpile(node.name) })
+        module_name = nil
       else
         module_name = transpile(node.name)
-        @@modules << module_name
+        new_module = ModuleData.new(module_name, node, nil)
+        @@modules << new_module
       end
 
-      @@module_stack += 1
+      @@module_stack << new_module
 
       transpiled_body =
         case node.body
@@ -21,16 +23,16 @@ module Crow
           transpile_module(node.body)
         end
 
-      @@module_stack -= 1
+      @@module_stack.pop
 
-      if @@module_stack > 0
-        module_name = "#{module_name}"
-      else
-        module_name = "const #{module_name}"
+      if @@module_stack.size > 0
+        module_name = "#{module_name} = {};"
+      elsif module_name
+        module_name = "const #{module_name} = {};"
       end
-
+      p @@modules.map { |m| m.to_s.as(String) }
       <<-JS
-      #{module_name} = {};
+      #{module_name}
       #{transpiled_body}
       JS
     end
@@ -43,22 +45,28 @@ module Crow
       transpile(node.body)
     end
     private def transpile_module(klass : Crystal::ClassDef)
-      class_name = "#{@@modules[@@module_stack - 1]}.#{klass.name.to_s}"
-
+      class_name = "#{@@module_stack.map(&.name).join('.')}.#{klass.name.to_s}"
       if klass.superclass
         super_class = " extends #{find_superclass(klass.superclass)}"
       end
 
-      @@class_stack += 1
+      new_class = ClassData.new(name: klass.name.to_s, source: klass, name_space: @@module_stack.map(&.name).join('.'))
+      @@class_stack << new_class
+      @@module_stack.last.classes << new_class
       class_body = format_body(transpile(klass.body))
-      @@class_stack -= 1
+      @@class_stack.pop
 
       "#{class_name} = class#{super_class} {#{class_body}}"
     end
 
     private def find_superclass(node : Crystal::ASTNode | Nil)
-      foo = @@modules.map { |m| m if m.scan(/#{node.to_s}/).any? }.compact
-      node.to_s
+      name = transpile(node)
+
+      if (super_class = @@modules.find { |m| m.find_child_class(name) })
+        name = "#{super_class.name}.#{name}"
+      end
+
+      name
     end
 
     private def transpile_module(node : Crystal::Def)
