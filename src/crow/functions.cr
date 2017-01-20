@@ -20,10 +20,10 @@ module Crow
       end
 
       block = transpile method.block_arg
-      args = args.concat(["callback"]) if block.is_a?(String)
+      args = args.concat([block]) if block.is_a?(String)
 
       # p transpile_with_return(method.body)
-      # p method.body
+      p method.body.class
 
       method_body = if original_name == "initialize"
                       format_body(transpile(method.body))
@@ -92,6 +92,10 @@ module Crow
       transpiled_exps = node.expressions.map { |e| transpile(e) }
       transpiled_exps << "return #{transpiled_exps.pop};"
       transpiled_exps.join('\n')
+    end
+
+    private def transpile_with_return(node : Crystal::Call)
+      transpile(node)
     end
 
     private def transpile_with_return(node : Crystal::ASTNode)
